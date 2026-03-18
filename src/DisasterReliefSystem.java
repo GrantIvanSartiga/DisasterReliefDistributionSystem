@@ -8,23 +8,23 @@ public class DisasterReliefSystem extends JFrame {
 
     public DisasterReliefSystem() {
         setTitle("Disaster Relief System");
-        setSize(400, 350); // small window
+        setSize(400, 350);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // center window
+        setLocationRelativeTo(null);
 
-        // Use GridBagLayout for 2-1-2 button arrangement
+
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // spacing between buttons
+        gbc.insets = new Insets(10, 10, 10, 10);
 
-        // Buttons
+
         JButton addHousehold = new JButton("Add Household");
         JButton addRequest = new JButton("Add Request");
         JButton viewHousehold = new JButton("View Households");
         JButton processRelief = new JButton("Process Relief");
         JButton search = new JButton("Search Household");
 
-        // ========== Top Row ==========
+
         gbc.gridx = 0;
         gbc.gridy = 0;
         add(addHousehold, gbc);
@@ -32,14 +32,14 @@ public class DisasterReliefSystem extends JFrame {
         gbc.gridx = 1;
         add(addRequest, gbc);
 
-        // ========== Middle Row ==========
+
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.gridwidth = 2; // span both columns
+        gbc.gridwidth = 2;
         add(viewHousehold, gbc);
 
-        // ========== Bottom Row ==========
-        gbc.gridwidth = 1; // reset to normal
+
+        gbc.gridwidth = 1;
         gbc.gridy = 2;
         gbc.gridx = 0;
         add(processRelief, gbc);
@@ -47,7 +47,7 @@ public class DisasterReliefSystem extends JFrame {
         gbc.gridx = 1;
         add(search, gbc);
 
-        // ================= ADD HOUSEHOLD =================
+
         addHousehold.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Household ID:"));
@@ -76,10 +76,10 @@ public class DisasterReliefSystem extends JFrame {
             }
         });
 
-        // ================= VIEW HOUSEHOLDS =================
+
         viewHousehold.addActionListener(e -> showHouseholds());
 
-        // ================= ADD REQUEST =================
+
         addRequest.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Household ID:"));
@@ -101,7 +101,7 @@ public class DisasterReliefSystem extends JFrame {
             }
         });
 
-        // ================= PROCESS RELIEF =================
+
         processRelief.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Household ID:"));
@@ -130,7 +130,7 @@ public class DisasterReliefSystem extends JFrame {
             }
         });
 
-        // ================= SEARCH HOUSEHOLD =================
+
         search.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Household ID:"));
@@ -149,7 +149,7 @@ public class DisasterReliefSystem extends JFrame {
         });
     }
 
-    // SHOW HOUSEHOLD LIST WITH VIEW REQUESTS BUTTON
+
     private void showHouseholds() {
         JFrame frame = new JFrame("Household List");
         frame.setSize(500,400);
@@ -176,7 +176,7 @@ public class DisasterReliefSystem extends JFrame {
         frame.setVisible(true);
     }
 
-    // SHOW REQUESTS (NON-EDITABLE)
+
     private void showRequests(Household h) {
         JFrame frame = new JFrame("Requests for " + h.name);
         frame.setSize(400,400);
