@@ -5,8 +5,9 @@ import java.util.*;
 public class DisasterReliefSystem extends JFrame {
     // UI Colors
     private final Color pastelPink = new Color(255,182,193);
-    private final Color pastelYellow = new Color(255,250,205);
-    private final Color pastelPurple = new Color(216,191,216);
+    private final Color pastelYellow = new Color(214, 205, 124);
+    private final Color pastelPurple = new Color(152, 123, 237);
+    private final Color pastelWhite = new Color(152, 123, 237);
 
     // BST
     HouseholdBST bst = new HouseholdBST();
@@ -68,13 +69,16 @@ public class DisasterReliefSystem extends JFrame {
             }
         });
 
-        registerBtn.addActionListener(e->{
+        registerBtn.addActionListener(e -> {
             String username = userField.getText().trim();
             String password = new String(passField.getPassword());
+
             if(userManager.register(username,password)){
                 JOptionPane.showMessageDialog(null,"Registered successfully!");
             } else {
-                JOptionPane.showMessageDialog(null,"Username already exists");
+                JOptionPane.showMessageDialog(null,
+                        "Registration failed!\nUsername: ≥4 chars, letters/numbers/_ only\n" +
+                                "Password: ≥6 chars, at least one letter and one number");
             }
         });
 
