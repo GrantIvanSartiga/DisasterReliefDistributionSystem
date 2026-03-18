@@ -3,8 +3,7 @@ import java.awt.*;
 import java.util.*;
 
 public class DisasterReliefSystem extends JFrame {
-
-    // ✅ USING BST INSTEAD OF HASHMAP
+    // ✅ Using BST
     HouseholdBST bst = new HouseholdBST();
     Household root = null;
 
@@ -45,7 +44,6 @@ public class DisasterReliefSystem extends JFrame {
                 int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Household ID:"));
                 String name = JOptionPane.showInputDialog("Enter Name:");
 
-                // check if already exists
                 if (bst.search(root, id) != null) {
                     JOptionPane.showMessageDialog(null, "ID already exists!");
                     return;
@@ -53,27 +51,15 @@ public class DisasterReliefSystem extends JFrame {
 
                 root = bst.insert(root, id, name);
 
-                JOptionPane.showMessageDialog(null, "Household added successfully!");
+                JOptionPane.showMessageDialog(null, "Household added!");
 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, "Invalid input");
             }
         });
 
-        // ✅ VIEW HOUSEHOLDS (BST INORDER)
-        viewHousehold.addActionListener(e -> {
-            JFrame frame = new JFrame("Household List");
-            frame.setSize(400, 400);
-            frame.setLocationRelativeTo(null);
-
-            JTextArea area = new JTextArea();
-            area.setEditable(false);
-
-            bst.inorder(root, area);
-
-            frame.add(new JScrollPane(area));
-            frame.setVisible(true);
-        });
+        // ✅ VIEW HOUSEHOLDS (WITH BUTTONS)
+        viewHousehold.addActionListener(e -> showHouseholds());
 
         // ✅ ADD REQUEST
         addRequest.addActionListener(e -> {
@@ -98,7 +84,7 @@ public class DisasterReliefSystem extends JFrame {
             }
         });
 
-        // ✅ PROCESS RELIEF (PRIORITY QUEUE - Week 13)
+        // ✅ PROCESS RELIEF (PRIORITY QUEUE)
         processRelief.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Household ID:"));
@@ -114,13 +100,13 @@ public class DisasterReliefSystem extends JFrame {
                     return;
                 }
 
-                // ✅ PRIORITY QUEUE (Highest urgency first)
+                // ✅ Priority Queue (Week 13)
                 PriorityQueue<ReliefRequest> pq =
                         new PriorityQueue<>((a, b) -> b.urgency - a.urgency);
 
                 pq.addAll(h.requests);
 
-                ReliefRequest r = pq.poll(); // highest priority
+                ReliefRequest r = pq.poll();
 
                 h.requests.remove(r);
                 h.processed.add(r);
@@ -134,7 +120,7 @@ public class DisasterReliefSystem extends JFrame {
             }
         });
 
-        // ✅ SEARCH HOUSEHOLD (BST SEARCH)
+        // ✅ SEARCH HOUSEHOLD
         search.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Household ID:"));
@@ -153,7 +139,43 @@ public class DisasterReliefSystem extends JFrame {
         });
     }
 
-    // ✅ DISPLAY REQUESTS
+    // ✅ SHOW HOUSEHOLDS WITH BUTTONS (BST TRAVERSAL)
+    private void showHouseholds() {
+        JFrame frame = new JFrame("Household List");
+        frame.setSize(500, 400);
+        frame.setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        addHouseholdRows(root, panel);
+
+        frame.add(new JScrollPane(panel));
+        frame.setVisible(true);
+    }
+
+    // ✅ INORDER TRAVERSAL + BUTTONS
+    private void addHouseholdRows(Household node, JPanel panel) {
+        if (node == null) return;
+
+        addHouseholdRows(node.left, panel);
+
+        JPanel row = new JPanel(new BorderLayout());
+
+        JLabel label = new JLabel("ID: " + node.id + " | Name: " + node.name);
+        JButton viewBtn = new JButton("View Requests");
+
+        viewBtn.addActionListener(e -> showRequests(node));
+
+        row.add(label, BorderLayout.CENTER);
+        row.add(viewBtn, BorderLayout.EAST);
+
+        panel.add(row);
+
+        addHouseholdRows(node.right, panel);
+    }
+
+    // ✅ SHOW REQUESTS
     private void showRequests(Household h) {
         JFrame frame = new JFrame("Requests for " + h.name);
         frame.setSize(400, 400);
@@ -175,6 +197,7 @@ public class DisasterReliefSystem extends JFrame {
         frame.add(new JScrollPane(area));
         frame.setVisible(true);
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new DisasterReliefSystem().setVisible(true));
