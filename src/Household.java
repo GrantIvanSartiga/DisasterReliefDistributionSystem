@@ -18,7 +18,11 @@ import java.util.*;
 public class Household {
     int id;
     String name;
-    Household left, right; // for BST usage if needed
+
+    // ✅ BINARY TREE NODE (Week 11)
+    Household left, right;
+
+    // Requests storage
     List<ReliefRequest> requests = new ArrayList<>();
     List<ReliefRequest> processed = new ArrayList<>();
 
