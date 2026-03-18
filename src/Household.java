@@ -18,12 +18,9 @@ import java.util.*;
 public class Household {
     int id;
     String name;
-
-    public List<ReliefRequest> requests = new ArrayList<>();
-    public List<ReliefRequest> processed = new ArrayList<>();
-
-    // for BST compatibility
-    Household left, right;
+    Household left, right; // for BST usage if needed
+    List<ReliefRequest> requests = new ArrayList<>();
+    List<ReliefRequest> processed = new ArrayList<>();
 
     public Household(int id, String name) {
         this.id = id;

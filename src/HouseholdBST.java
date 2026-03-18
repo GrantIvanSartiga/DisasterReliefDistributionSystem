@@ -36,8 +36,6 @@
 //}
 
 
-import javax.swing.*;
-
 public class HouseholdBST {
     Household root;
 
@@ -51,5 +49,13 @@ public class HouseholdBST {
     public Household search(Household root, int id) {
         if (root == null || root.id == id) return root;
         return (id < root.id) ? search(root.left, id) : search(root.right, id);
+    }
+
+    public void inorder(Household root, javax.swing.JTextArea area) {
+        if (root != null) {
+            inorder(root.left, area);
+            area.append("ID: " + root.id + " | Name: " + root.name + "\n");
+            inorder(root.right, area);
+        }
     }
 }
