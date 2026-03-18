@@ -1,119 +1,115 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 
-public class DisasterReliefSystem {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
 
-        HouseholdBST bst = new HouseholdBST();
+public class DisasterReliefSystem extends JFrame {
 
-        // Queue (FIFO)
-        Queue<ReliefRequest> normalQueue = new LinkedList<>();
+    HouseholdBST bst = new HouseholdBST();
+    Queue<ReliefRequest> normalQueue = new LinkedList<>();
+    PriorityQueue<ReliefRequest> priorityQueue = new PriorityQueue<>((a, b) -> b.urgency - a.urgency);
 
-        // Priority Queue (Heap)
-        PriorityQueue<ReliefRequest> priorityQueue =
-                new PriorityQueue<>((a, b) -> b.urgency - a.urgency);
+    JTextArea outputArea;
 
-        int choice;
+    public DisasterReliefSystem() {
+        setTitle("Disaster Relief System");
+        setSize(500, 500);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        do {
-            System.out.println("\n===== DISASTER RELIEF SYSTEM =====");
-            System.out.println("1. Add Household");
-            System.out.println("2. View Households");
-            System.out.println("3. Add Relief Request");
-            System.out.println("4. Process Relief (Priority First)");
-            System.out.println("5. Search Household");
-            System.out.println("6. Exit");
-            System.out.print("Choice: ");
-            choice = sc.nextInt();
+        JPanel panel = new JPanel(new GridLayout(6, 1, 5, 5));
 
-            switch (choice) {
+        JButton addHouseholdBtn = new JButton("Add Household");
+        JButton viewBtn = new JButton("View Households");
+        JButton addRequestBtn = new JButton("Add Request");
+        JButton processBtn = new JButton("Process Relief");
+        JButton searchBtn = new JButton("Search Household");
 
-                // ================= ADD HOUSEHOLD =================
-                case 1:
-                    System.out.print("Enter ID: ");
-                    int id = sc.nextInt();
-                    sc.nextLine();
-                    System.out.print("Enter Name: ");
-                    String name = sc.nextLine();
+        panel.add(addHouseholdBtn);
+        panel.add(viewBtn);
+        panel.add(addRequestBtn);
+        panel.add(processBtn);
+        panel.add(searchBtn);
 
-                    bst.root = bst.insert(bst.root, id, name);
-                    System.out.println("Household added.");
-                    break;
+        add(panel, BorderLayout.WEST);
 
-                // ================= VIEW HOUSEHOLDS =================
-                case 2:
-                    System.out.println("\n--- Household List ---");
-                    bst.inorder(bst.root);
-                    break;
+        outputArea = new JTextArea();
+        add(new JScrollPane(outputArea), BorderLayout.CENTER);
 
-                // ================= ADD REQUEST =================
-                case 3:
-                    System.out.print("Enter Household ID: ");
-                    int hid = sc.nextInt();
+        // BUTTON ACTIONS
 
-                    System.out.print("Urgency (1-10): ");
-                    int urgency = sc.nextInt();
+        addHouseholdBtn.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("Enter ID:"));
+                String name = JOptionPane.showInputDialog("Enter Name:");
+                bst.root = bst.insert(bst.root, id, name);
+                outputArea.append("Household added.\n");
+            } catch (Exception ex) {
+                outputArea.append("Invalid input.\n");
+            }
+        });
 
-                    ReliefRequest req = new ReliefRequest(hid, urgency);
+        viewBtn.addActionListener(e -> {
+            outputArea.setText("--- Household List ---\n");
+            bst.inorder(bst.root, outputArea);
+        });
 
-                    if (urgency >= 7) {
-                        priorityQueue.add(req);
-                        System.out.println("Added to PRIORITY queue.");
-                    } else {
-                        normalQueue.add(req);
-                        System.out.println("Added to NORMAL queue.");
-                    }
-                    break;
+        addRequestBtn.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("Household ID:"));
+                int urgency = Integer.parseInt(JOptionPane.showInputDialog("Urgency (1-10):"));
 
-                // ================= PROCESS RELIEF =================
-                case 4:
-                    if (!priorityQueue.isEmpty()) {
-                        ReliefRequest r = priorityQueue.poll();
-                        System.out.println("Processing PRIORITY request...");
-                        processRequest(r, bst);
-                    } else if (!normalQueue.isEmpty()) {
-                        ReliefRequest r = normalQueue.poll();
-                        System.out.println("Processing NORMAL request...");
-                        processRequest(r, bst);
-                    } else {
-                        System.out.println("No requests available.");
-                    }
-                    break;
+                ReliefRequest req = new ReliefRequest(id, urgency);
+                if (urgency >= 7) {
+                    priorityQueue.add(req);
+                    outputArea.append("Added to PRIORITY queue.\n");
+                } else {
+                    normalQueue.add(req);
+                    outputArea.append("Added to NORMAL queue.\n");
+                }
+            } catch (Exception ex) {
+                outputArea.append("Invalid input.\n");
+            }
+        });
 
-                // ================= SEARCH =================
-                case 5:
-                    System.out.print("Enter ID to search: ");
-                    int sid = sc.nextInt();
-
-                    Household found = bst.search(bst.root, sid);
-
-                    if (found != null) {
-                        System.out.println("Found: " + found.name);
-                    } else {
-                        System.out.println("Not found.");
-                    }
-                    break;
-
-                case 6:
-                    System.out.println("Exiting system...");
-                    break;
-
-                default:
-                    System.out.println("Invalid choice.");
+        processBtn.addActionListener(e -> {
+            ReliefRequest r;
+            if (!priorityQueue.isEmpty()) {
+                r = priorityQueue.poll();
+                outputArea.append("Processing PRIORITY request...\n");
+            } else if (!normalQueue.isEmpty()) {
+                r = normalQueue.poll();
+                outputArea.append("Processing NORMAL request...\n");
+            } else {
+                outputArea.append("No requests available.\n");
+                return;
             }
 
-        } while (choice != 6);
+            Household h = bst.search(bst.root, r.householdId);
+            if (h != null) {
+                outputArea.append("Relief sent to: " + h.name + " (Urgency: " + r.urgency + ")\n");
+            } else {
+                outputArea.append("Household not found.\n");
+            }
+        });
 
-        sc.close();
+        searchBtn.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("Enter ID to search:"));
+                Household h = bst.search(bst.root, id);
+                if (h != null) {
+                    outputArea.append("Found: " + h.name + "\n");
+                } else {
+                    outputArea.append("Not found.\n");
+                }
+            } catch (Exception ex) {
+                outputArea.append("Invalid input.\n");
+            }
+        });
     }
-    public static void processRequest(ReliefRequest r, HouseholdBST bst) {
-        Household h = bst.search(bst.root, r.householdId);
 
-        if (h != null) {
-            System.out.println("Relief sent to: " + h.name +
-                    " (Urgency: " + r.urgency + ")");
-        } else {
-            System.out.println("Household not found.");
-        }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new DisasterReliefSystem().setVisible(true));
     }
 }
