@@ -1,112 +1,157 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
-
 
 public class DisasterReliefSystem extends JFrame {
 
-    HouseholdBST bst = new HouseholdBST();
-    Queue<ReliefRequest> normalQueue = new LinkedList<>();
-    PriorityQueue<ReliefRequest> priorityQueue = new PriorityQueue<>((a, b) -> b.urgency - a.urgency);
-
-    JTextArea outputArea;
+    Map<Integer, Household> households = new HashMap<>();
+    JTextArea output;
 
     public DisasterReliefSystem() {
-        setTitle("Disaster Relief System");
-        setSize(500, 500);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("Disaster Relief System Prototype");
+        setSize(700, 500);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel(new GridLayout(6, 1, 5, 5));
+        JPanel panel = new JPanel(new GridLayout(5,1,10,10));
 
-        JButton addHouseholdBtn = new JButton("Add Household");
-        JButton viewBtn = new JButton("View Households");
-        JButton addRequestBtn = new JButton("Add Request");
-        JButton processBtn = new JButton("Process Relief");
-        JButton searchBtn = new JButton("Search Household");
+        JButton addHousehold = new JButton("Add Household");
+        JButton viewHousehold = new JButton("View Households");
+        JButton addRequest = new JButton("Add Request");
+        JButton processRelief = new JButton("Process Relief");
+        JButton search = new JButton("Search Household");
 
-        panel.add(addHouseholdBtn);
-        panel.add(viewBtn);
-        panel.add(addRequestBtn);
-        panel.add(processBtn);
-        panel.add(searchBtn);
+        panel.add(addHousehold);
+        panel.add(viewHousehold);
+        panel.add(addRequest);
+        panel.add(processRelief);
+        panel.add(search);
 
         add(panel, BorderLayout.WEST);
 
-        outputArea = new JTextArea();
-        add(new JScrollPane(outputArea), BorderLayout.CENTER);
+        output = new JTextArea();
+        add(new JScrollPane(output), BorderLayout.CENTER);
 
-        // BUTTON ACTIONS
-
-        addHouseholdBtn.addActionListener(e -> {
+        // ADD HOUSEHOLD
+        addHousehold.addActionListener(e -> {
             try {
-                int id = Integer.parseInt(JOptionPane.showInputDialog("Enter ID:"));
+                int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Household ID:"));
                 String name = JOptionPane.showInputDialog("Enter Name:");
-                bst.root = bst.insert(bst.root, id, name);
-                outputArea.append("Household added.\n");
+
+                if (households.containsKey(id)) {
+                    JOptionPane.showMessageDialog(null, "ID already exists!");
+                    return;
+                }
+
+                households.put(id, new Household(id, name));
+
+                int option = JOptionPane.showOptionDialog(null,
+                        "Household inputted successfully",
+                        "Success",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        new String[]{"View List", "Okay"},
+                        "Okay");
+
+                if (option == 0) showHouseholds();
+
             } catch (Exception ex) {
-                outputArea.append("Invalid input.\n");
+                output.append("Invalid input\n");
             }
         });
 
-        viewBtn.addActionListener(e -> {
-            outputArea.setText("--- Household List ---\n");
-            bst.inorder(bst.root, outputArea);
-        });
+        // VIEW
+        viewHousehold.addActionListener(e -> showHouseholds());
 
-        addRequestBtn.addActionListener(e -> {
+        // ADD REQUEST
+        addRequest.addActionListener(e -> {
             try {
-                int id = Integer.parseInt(JOptionPane.showInputDialog("Household ID:"));
+                int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Household ID:"));
+                Household h = households.get(id);
+
+                if (h == null) {
+                    output.append("Household not found\n");
+                    return;
+                }
+
+                String reqName = JOptionPane.showInputDialog("Enter Request Name:");
                 int urgency = Integer.parseInt(JOptionPane.showInputDialog("Urgency (1-10):"));
 
-                ReliefRequest req = new ReliefRequest(id, urgency);
-                if (urgency >= 7) {
-                    priorityQueue.add(req);
-                    outputArea.append("Added to PRIORITY queue.\n");
-                } else {
-                    normalQueue.add(req);
-                    outputArea.append("Added to NORMAL queue.\n");
-                }
+                h.requests.add(new ReliefRequest(reqName, urgency));
+
+                JOptionPane.showMessageDialog(null, "Request successfully added");
+
             } catch (Exception ex) {
-                outputArea.append("Invalid input.\n");
+                output.append("Invalid input\n");
             }
         });
 
-        processBtn.addActionListener(e -> {
-            ReliefRequest r;
-            if (!priorityQueue.isEmpty()) {
-                r = priorityQueue.poll();
-                outputArea.append("Processing PRIORITY request...\n");
-            } else if (!normalQueue.isEmpty()) {
-                r = normalQueue.poll();
-                outputArea.append("Processing NORMAL request...\n");
-            } else {
-                outputArea.append("No requests available.\n");
-                return;
-            }
-
-            Household h = bst.search(bst.root, r.householdId);
-            if (h != null) {
-                outputArea.append("Relief sent to: " + h.name + " (Urgency: " + r.urgency + ")\n");
-            } else {
-                outputArea.append("Household not found.\n");
-            }
-        });
-
-        searchBtn.addActionListener(e -> {
+        // PROCESS
+        processRelief.addActionListener(e -> {
             try {
-                int id = Integer.parseInt(JOptionPane.showInputDialog("Enter ID to search:"));
-                Household h = bst.search(bst.root, id);
-                if (h != null) {
-                    outputArea.append("Found: " + h.name + "\n");
-                } else {
-                    outputArea.append("Not found.\n");
+                int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Household ID:"));
+                Household h = households.get(id);
+
+                if (h == null) {
+                    output.append("Household not found\n");
+                    return;
                 }
+
+                if (h.requests.isEmpty()) {
+                    output.append("No requests available\n");
+                    return;
+                }
+
+                h.requests.sort((a,b)-> b.urgency - a.urgency);
+
+                ReliefRequest r = h.requests.remove(0);
+                h.processed.add(r);
+
+                output.append("Processing as per urgency level...\n");
+                output.append("Processed: " + r.requestName + " (Urgency: " + r.urgency + ")\n");
+
             } catch (Exception ex) {
-                outputArea.append("Invalid input.\n");
+                output.append("Invalid input\n");
             }
         });
+
+        // SEARCH
+        search.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Household ID:"));
+                Household h = households.get(id);
+
+                if (h == null) {
+                    output.append("Not found\n");
+                    return;
+                }
+
+                output.setText("--- Household Info ---\n");
+                output.append("ID: " + h.id + " Name: " + h.name + "\n\n");
+
+                output.append("Requests:\n");
+                h.requests.sort((a,b)-> b.urgency - a.urgency);
+                for (ReliefRequest r : h.requests) {
+                    output.append(r.requestName + " (Urgency: " + r.urgency + ")\n");
+                }
+
+                output.append("\nProcessed:\n");
+                for (ReliefRequest r : h.processed) {
+                    output.append(r.requestName + " (Urgency: " + r.urgency + ")\n");
+                }
+
+            } catch (Exception ex) {
+                output.append("Invalid input\n");
+            }
+        });
+    }
+
+    private void showHouseholds() {
+        output.setText("--- Household List ---\n");
+        for (Household h : households.values()) {
+            output.append("ID: " + h.id + " | Name: " + h.name + "\n");
+        }
     }
 
     public static void main(String[] args) {

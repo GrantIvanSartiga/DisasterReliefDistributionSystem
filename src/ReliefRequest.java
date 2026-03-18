@@ -12,12 +12,12 @@
 //}
 
 
-class ReliefRequest {
-    int householdId;
+public class ReliefRequest {
+    String requestName;
     int urgency;
 
-    public ReliefRequest(int householdId, int urgency) {
-        this.householdId = householdId;
+    public ReliefRequest(String requestName, int urgency) {
+        this.requestName = requestName;
         this.urgency = urgency;
     }
 }

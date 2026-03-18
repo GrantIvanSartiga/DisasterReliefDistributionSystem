@@ -13,10 +13,16 @@
 //}
 
 
+import java.util.*;
 
-class Household {
+public class Household {
     int id;
     String name;
+
+    public List<ReliefRequest> requests = new ArrayList<>();
+    public List<ReliefRequest> processed = new ArrayList<>();
+
+    // for BST compatibility
     Household left, right;
 
     public Household(int id, String name) {
