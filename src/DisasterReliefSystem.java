@@ -3,20 +3,16 @@ import java.awt.*;
 import java.util.*;
 
 public class DisasterReliefSystem extends JFrame {
-    // UI Colors
     private final Color pastelPink = new Color(255,182,193);
     private final Color pastelYellow = new Color(214, 205, 124);
     private final Color pastelPurple = new Color(152, 123, 237);
     private final Color pastelWhite = new Color(152, 123, 237);
 
-    // BST
     HouseholdBST bst = new HouseholdBST();
     Household root = null;
 
-    // User management
     UserManager userManager = new UserManager();
 
-    // Panels
     JPanel loginPanel, mainPanel;
 
     public DisasterReliefSystem(){
@@ -24,11 +20,9 @@ public class DisasterReliefSystem extends JFrame {
         setSize(600,450);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
         showLogin();
     }
 
-    // ----- Login & Register -----
     private void showLogin(){
         getContentPane().removeAll();
         loginPanel = new JPanel();
@@ -86,7 +80,6 @@ public class DisasterReliefSystem extends JFrame {
         revalidate(); repaint();
     }
 
-    // ----- Main UI -----
     private void showMainUI(){
         getContentPane().removeAll();
         mainPanel = new JPanel();
@@ -124,7 +117,6 @@ public class DisasterReliefSystem extends JFrame {
         setContentPane(mainPanel); revalidate(); repaint();
     }
 
-    // ----- Household Operations -----
     private void addHousehold(){
         try{
             int id = Integer.parseInt(JOptionPane.showInputDialog("Enter Household ID:"));
